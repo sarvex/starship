@@ -1,5 +1,5 @@
 name: Build Codesigned Starship Binary
-on: pull_request
+on: [push, pull_request]
 
 jobs:
   build_with_signing:
