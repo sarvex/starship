@@ -4,6 +4,8 @@ on: pull_request
 jobs:
   build_with_signing:
     runs-on: macos-latest
+    env:
+      - KEYCHAIN_PATH: "$RUNNER_TEMP/app-signing.keychain-db"
 
     steps:
       - name: Checkout repository
@@ -20,7 +22,6 @@ jobs:
         run: |
           APP_CERTIFICATE_PATH="$RUNNER_TEMP/app_certificate.p12"
           INSTALL_CERTIFICATE_PATH="$RUNNER_TEMP/install_certificate.p12"
-          KEYCHAIN_PATH="$RUNNER_TEMP/app-signing.keychain-db"
 
           # import certificate and provisioning profile from secrets
           echo -n "$APP_CERTIFICATE_BASE64" | base64 --decode --output $APP_CERTIFICATE_PATH
