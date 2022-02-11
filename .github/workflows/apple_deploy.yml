@@ -5,7 +5,7 @@ jobs:
   build_with_signing:
     runs-on: macos-latest
     env:
-      KEYCHAIN_PATH: "$RUNNER_TEMP/app-signing.keychain-db"
+      KEYCHAIN_PATH: "${{ env.RUNNER_TEMP }}/app-signing.keychain-db"
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
