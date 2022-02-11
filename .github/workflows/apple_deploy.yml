@@ -54,10 +54,15 @@ jobs:
         # run: codesign --timestamp --sign "Developer ID Application" --keychain $KEYCHAIN_PATH --verbose -f -o runtime target/release/starship
         run: codesign --timestamp --sign "Developer ID Application" --keychain $KEYCHAIN_PATH --verbose -f -o runtime target/debug/starship
 
-      - name: Prepare Binary for Codesigning
-        run: |
-          cp target/debug/starship starship
-          zip starship.zip starship
+      # - name: Prepare Binary for Codesigning
+      #  run: |
+      #    cp target/debug/starship starship
+      #    zip starship.zip starship
+
+      - name: Prepare Debug Binary for Codesigning
+       run: |
+         cp target/debug/starship starship
+         zip starship.zip starship
 
       - name: Notarize application
         run: xcrun notarytool submit starship.zip --keychain $KEYCHAIN_PATH --keychain-profile "APPLE_NOTARIZE_PASSWORD" --wait 
