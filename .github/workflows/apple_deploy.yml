@@ -5,7 +5,8 @@ jobs:
   build_with_signing:
     runs-on: macos-latest
     env:
-      KEYCHAIN_NAME: app-signing.keychain-db
+    - KEYCHAIN_NAME: app-signing.keychain-db
+    - KEYCHAIN_ENTRY: APPLE_NOTARIZE_CREDENTIALS
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
@@ -38,7 +39,7 @@ jobs:
         security list-keychain -d user -s $KEYCHAIN_PATH
 
         # Add Apple Developer ID credentials to keychain
-        xcrun notarytool store-credentials "APPLE_NOTARIZE_PASSWORD" --team-id "$APPLEID_TEAMID" --apple-id "$APPLEID_USERNAME" --password "$APPLEID_PASSWORD" --keychain "$KEYCHAIN_PATH"
+        xcrun notarytool store-credentials "$KEYCHAIN_ENTRY" --team-id "$APPLEID_TEAMID" --apple-id "$APPLEID_USERNAME" --password "$APPLEID_PASSWORD" --keychain "$KEYCHAIN_PATH"
     - name: Setup | Rust
       uses: actions-rs/toolchain@v1.0.7
       with:
@@ -51,6 +52,8 @@ jobs:
       run: cargo build
 
     - name: Codesign application
+      env: 
+        KEYCHAIN_PATH: ${{ env.RUNNER_TEMP }}/${{ env.KEYCHAIN_NAME }}
       # run: codesign --timestamp --sign "Developer ID Application" --keychain $KEYCHAIN_PATH --verbose -f -o runtime target/release/starship
       run: codesign --timestamp --sign "Developer ID Application" --keychain $KEYCHAIN_PATH --verbose -f -o runtime target/debug/starship
 
@@ -65,7 +68,9 @@ jobs:
         zip starship.zip starship
 
     - name: Notarize application
-      run: xcrun notarytool submit starship.zip --keychain $KEYCHAIN_PATH --keychain-profile "APPLE_NOTARIZE_PASSWORD" --wait 
+      env: 
+        KEYCHAIN_PATH: ${{ env.RUNNER_TEMP }}/${{ env.KEYCHAIN_NAME }}
+      run: xcrun notarytool submit starship.zip --keychain $KEYCHAIN_PATH --keychain-profile "$KEYCHAIN_ENTRY" --wait 
 
     - name: Upload Notarized Starship ZIP
       uses: actions/upload-artifact@v2
@@ -75,6 +80,8 @@ jobs:
         retention-days: 1
 
     - name: Cleanup Secrets
+      env: 
+        KEYCHAIN_PATH: ${{ env.RUNNER_TEMP }}/${{ env.KEYCHAIN_NAME }}
       if: ${{ always() }}
-      run: security delete-keychain $RUNNER_TEMP/app-signing.keychain-db
+      run: security delete-keychain $KEYCHAIN_PATH
       
