@@ -5,7 +5,7 @@ jobs:
   build_with_signing:
     runs-on: macos-latest
     env:
-      KEYCHAIN_NAME: app-signing.keychain-db
+      KEYCHAIN_FILENAME: app-signing.keychain-db
       KEYCHAIN_ENTRY: APPLE_NOTARIZE_CREDENTIALS
     steps:
     - name: Checkout repository
@@ -19,10 +19,10 @@ jobs:
         APPLEID_USERNAME: ${{ secrets.APPLEDEV_ID_NAME }}
         APPLEID_TEAMID: ${{ secrets.APPLEDEV_TEAM_ID }}
         APPLEID_PASSWORD: ${{ secrets.APPLEDEV_PASSWORD }}
-        KEYCHAIN_PATH: ${{ env.RUNNER_TEMP }}/${{ env.KEYCHAIN_NAME }}
       run: |
         APP_CERTIFICATE_PATH="$RUNNER_TEMP/app_certificate.p12"
         INSTALL_CERTIFICATE_PATH="$RUNNER_TEMP/install_certificate.p12"
+        KEYCHAIN_PATH="$RUNNER_TEMP/$KEYCHAIN_FILENAME"
 
         # import certificate and provisioning profile from secrets
         echo -n "$APP_CERTIFICATE_BASE64" | base64 --decode --output $APP_CERTIFICATE_PATH
@@ -52,10 +52,10 @@ jobs:
       run: cargo build
 
     - name: Codesign application
-      env: 
-        KEYCHAIN_PATH: ${{ env.RUNNER_TEMP }}/${{ env.KEYCHAIN_NAME }}
       # run: codesign --timestamp --sign "Developer ID Application" --keychain $KEYCHAIN_PATH --verbose -f -o runtime target/release/starship
-      run: codesign --timestamp --sign "Developer ID Application" --keychain $KEYCHAIN_PATH --verbose -f -o runtime target/debug/starship
+      run: |
+        KEYCHAIN_PATH="$RUNNER_TEMP/$KEYCHAIN_FILENAME"
+        codesign --timestamp --sign "Developer ID Application" --keychain $KEYCHAIN_PATH --verbose -f -o runtime target/debug/starship
 
     # - name: Prepare Binary for Codesigning
     #  run: |
@@ -68,9 +68,9 @@ jobs:
         zip starship.zip starship
 
     - name: Notarize application
-      env: 
-        KEYCHAIN_PATH: ${{ env.RUNNER_TEMP }}/${{ env.KEYCHAIN_NAME }}
-      run: xcrun notarytool submit starship.zip --keychain $KEYCHAIN_PATH --keychain-profile "$KEYCHAIN_ENTRY" --wait 
+      run: |
+        KEYCHAIN_PATH="$RUNNER_TEMP/$KEYCHAIN_FILENAME"
+        xcrun notarytool submit starship.zip --keychain $KEYCHAIN_PATH --keychain-profile "$KEYCHAIN_ENTRY" --wait 
 
     - name: Upload Notarized Starship ZIP
       uses: actions/upload-artifact@v2
@@ -80,8 +80,8 @@ jobs:
         retention-days: 1
 
     - name: Cleanup Secrets
-      env: 
-        KEYCHAIN_PATH: ${{ env.RUNNER_TEMP }}/${{ env.KEYCHAIN_NAME }}
       if: ${{ always() }}
-      run: security delete-keychain $KEYCHAIN_PATH
+      run: |
+        KEYCHAIN_PATH="$RUNNER_TEMP/$KEYCHAIN_FILENAME"
+        security delete-keychain $KEYCHAIN_PATH
       
