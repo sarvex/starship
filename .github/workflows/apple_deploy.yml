@@ -7,73 +7,73 @@ jobs:
     env:
       KEYCHAIN_PATH: "${{ env.RUNNER_TEMP }}/app-signing.keychain-db"
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-      - name: Install Apple signing certificates
-        env:
-          APP_CERTIFICATE_BASE64: ${{ secrets.APPLEDEV_APPSIGNKEY_BASE64 }}
-          INSTALL_CERTIFICATE_BASE64: ${{ secrets.APPLEDEV_INSTALLERSIGNKEY_BASE64 }}
-          P12_PASSWORD: ${{ secrets.APPLEDEV_SIGNKEY_PASS }}
-          KEYCHAIN_PASSWORD: ${{ secrets.APPLEDEV_SIGNKEY_PASS }}
-          APPLEID_USERNAME: ${{ secrets.APPLEDEV_ID_NAME }}
-          APPLEID_TEAMID: ${{ secrets.APPLEDEV_TEAM_ID }}
-          APPLEID_PASSWORD: ${{ secrets.APPLEDEV_PASSWORD }}
-        run: |
-          APP_CERTIFICATE_PATH="$RUNNER_TEMP/app_certificate.p12"
-          INSTALL_CERTIFICATE_PATH="$RUNNER_TEMP/install_certificate.p12"
+    - name: Checkout repository
+      uses: actions/checkout@v2
+    - name: Install Apple signing certificates
+      env:
+        APP_CERTIFICATE_BASE64: ${{ secrets.APPLEDEV_APPSIGNKEY_BASE64 }}
+        INSTALL_CERTIFICATE_BASE64: ${{ secrets.APPLEDEV_INSTALLERSIGNKEY_BASE64 }}
+        P12_PASSWORD: ${{ secrets.APPLEDEV_SIGNKEY_PASS }}
+        KEYCHAIN_PASSWORD: ${{ secrets.APPLEDEV_SIGNKEY_PASS }}
+        APPLEID_USERNAME: ${{ secrets.APPLEDEV_ID_NAME }}
+        APPLEID_TEAMID: ${{ secrets.APPLEDEV_TEAM_ID }}
+        APPLEID_PASSWORD: ${{ secrets.APPLEDEV_PASSWORD }}
+      run: |
+        APP_CERTIFICATE_PATH="$RUNNER_TEMP/app_certificate.p12"
+        INSTALL_CERTIFICATE_PATH="$RUNNER_TEMP/install_certificate.p12"
 
-          # import certificate and provisioning profile from secrets
-          echo -n "$APP_CERTIFICATE_BASE64" | base64 --decode --output $APP_CERTIFICATE_PATH
-          echo -n "$INSTALL_CERTIFICATE_BASE64" | base64 --decode --output $INSTALL_CERTIFICATE_PATH
+        # import certificate and provisioning profile from secrets
+        echo -n "$APP_CERTIFICATE_BASE64" | base64 --decode --output $APP_CERTIFICATE_PATH
+        echo -n "$INSTALL_CERTIFICATE_BASE64" | base64 --decode --output $INSTALL_CERTIFICATE_PATH
 
-          # create temporary keychain
-          security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
-          security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
-          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+        # create temporary keychain
+        security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+        security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
+        security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
 
-          # import certificate to keychain
-          security import $APP_CERTIFICATE_PATH -P "$P12_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
-          security import $INSTALL_CERTIFICATE_PATH -P "$P12_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
-          security list-keychain -d user -s $KEYCHAIN_PATH
+        # import certificate to keychain
+        security import $APP_CERTIFICATE_PATH -P "$P12_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
+        security import $INSTALL_CERTIFICATE_PATH -P "$P12_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
+        security list-keychain -d user -s $KEYCHAIN_PATH
 
-          # Add Apple Developer ID credentials to keychain
-          xcrun notarytool store-credentials "APPLE_NOTARIZE_PASSWORD" --team-id "$APPLEID_TEAMID" --apple-id "$APPLEID_USERNAME" --password "$APPLEID_PASSWORD" --keychain "$KEYCHAIN_PATH"
-      - name: Setup | Rust
-        uses: actions-rs/toolchain@v1.0.7
-        with:
-          toolchain: stable
-          override: true
-          profile: minimal
+        # Add Apple Developer ID credentials to keychain
+        xcrun notarytool store-credentials "APPLE_NOTARIZE_PASSWORD" --team-id "$APPLEID_TEAMID" --apple-id "$APPLEID_USERNAME" --password "$APPLEID_PASSWORD" --keychain "$KEYCHAIN_PATH"
+    - name: Setup | Rust
+      uses: actions-rs/toolchain@v1.0.7
+      with:
+        toolchain: stable
+        override: true
+        profile: minimal
 
-      - name: Build starship
-        # run: cargo build --release --locked
-        run: cargo build
+    - name: Build starship
+      # run: cargo build --release --locked
+      run: cargo build
 
-      - name: Codesign application
-        # run: codesign --timestamp --sign "Developer ID Application" --keychain $KEYCHAIN_PATH --verbose -f -o runtime target/release/starship
-        run: codesign --timestamp --sign "Developer ID Application" --keychain $KEYCHAIN_PATH --verbose -f -o runtime target/debug/starship
+    - name: Codesign application
+      # run: codesign --timestamp --sign "Developer ID Application" --keychain $KEYCHAIN_PATH --verbose -f -o runtime target/release/starship
+      run: codesign --timestamp --sign "Developer ID Application" --keychain $KEYCHAIN_PATH --verbose -f -o runtime target/debug/starship
 
-      # - name: Prepare Binary for Codesigning
-      #  run: |
-      #    cp target/debug/starship starship
-      #    zip starship.zip starship
+    # - name: Prepare Binary for Codesigning
+    #  run: |
+    #    cp target/debug/starship starship
+    #    zip starship.zip starship
 
-      - name: Prepare Debug Binary for Codesigning
-       run: |
-         cp target/debug/starship starship
-         zip starship.zip starship
+    - name: Prepare Debug Binary for Codesigning
+      run: |
+        cp target/debug/starship starship
+        zip starship.zip starship
 
-      - name: Notarize application
-        run: xcrun notarytool submit starship.zip --keychain $KEYCHAIN_PATH --keychain-profile "APPLE_NOTARIZE_PASSWORD" --wait 
+    - name: Notarize application
+      run: xcrun notarytool submit starship.zip --keychain $KEYCHAIN_PATH --keychain-profile "APPLE_NOTARIZE_PASSWORD" --wait 
 
-      - name: Upload Notarized Starship ZIP
-        uses: actions/upload-artifact@v2
-        with:
-          name: notarized-starship-blob
-          path: starship.zip
-          retention-days: 1
+    - name: Upload Notarized Starship ZIP
+      uses: actions/upload-artifact@v2
+      with:
+        name: notarized-starship-blob
+        path: starship.zip
+        retention-days: 1
 
-      - name: Cleanup Secrets
-        if: ${{ always() }}
-        run: security delete-keychain $RUNNER_TEMP/app-signing.keychain-db
-        
+    - name: Cleanup Secrets
+      if: ${{ always() }}
+      run: security delete-keychain $RUNNER_TEMP/app-signing.keychain-db
+      
