@@ -58,7 +58,7 @@ jobs:
           zip starship.zip starship
 
       - name: Notarize application
-        run: xcrun notarytool submit starship.zip --keychain-profile "APPLE_NOTARIZE_PASSWORD" --wait --primary-bundle-id "com.starshipprompt.starship"
+        run: xcrun notarytool submit starship.zip --keychain $KEYCHAIN_PATH --keychain-profile "APPLE_NOTARIZE_PASSWORD" --wait 
 
       - name: Upload Notarized Starship ZIP
         uses: actions/upload-artifact@v2
