@@ -1,5 +1,5 @@
 name: Build Codesigned Starship Binary
-on: [push, pull_request]
+on: pull_request
 
 jobs:
   build_with_signing:
@@ -46,7 +46,8 @@ jobs:
           profile: minimal
 
       - name: Build starship
-        run: cargo build --release --locked
+        # run: cargo build --release --locked
+        run: cargo build
 
       - name: Codesign application
         run: codesign --timestamp --sign "Developer ID Application" --keychain $KEYCHAIN_PATH --verbose -f -o runtime target/release/starship
