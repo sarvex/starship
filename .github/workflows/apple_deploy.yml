@@ -55,7 +55,7 @@ jobs:
 
       - name: Prepare Binary for Codesigning
         run: |
-          cp target/release/starship starship
+          cp target/debug/starship starship
           zip starship.zip starship
 
       - name: Notarize application
