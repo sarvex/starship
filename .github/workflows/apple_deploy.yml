@@ -1,6 +1,10 @@
 name: Build Codesigned Starship Binary
 on: push
 
+# Artifact names: 
+#  - starship-x86_64-apple-darwin.tar.gz
+#  - starship-aarch64-apple-darwin.tar.gz
+
 jobs:
   build_with_signing:
     runs-on: macos-latest
@@ -48,19 +52,12 @@ jobs:
         profile: minimal
 
     - name: Build starship
-      # run: cargo build --release --locked
       run: cargo build
 
     - name: Codesign application
-      # run: codesign --timestamp --sign "Developer ID Application" --keychain $KEYCHAIN_PATH --verbose -f -o runtime target/release/starship
       run: |
         KEYCHAIN_PATH="$RUNNER_TEMP/$KEYCHAIN_FILENAME"
         codesign --timestamp --sign "Developer ID Application" --keychain $KEYCHAIN_PATH --verbose -f -o runtime target/debug/starship
-
-    # - name: Prepare Binary for Codesigning
-    #  run: |
-    #    cp target/debug/starship starship
-    #    zip starship.zip starship
 
     - name: Prepare Debug Binary for Codesigning
       run: |
@@ -84,4 +81,3 @@ jobs:
       run: |
         KEYCHAIN_PATH="$RUNNER_TEMP/$KEYCHAIN_FILENAME"
         security delete-keychain $KEYCHAIN_PATH
-      
