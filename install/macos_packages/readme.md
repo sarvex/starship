@@ -33,7 +33,7 @@ buy one at https://developer.apple.com/programs/ for $100 a year (at time of
 writing).
 
 There is no other way to acquire an account, which is needed to obtain
-non-self-signed keys and to be able to notarize
+non-self-signed keys and to be able to notarize files.
 
 ### Signing Keys
 
@@ -189,3 +189,62 @@ To create a distribution, we do the following steps:
 
 I have elected not to make a fat binary due to concerns over startup cost, so
 there are two .plist files that can be used to specify the architecture required.
+
+## Signing the Distribution package
+
+This is also fairly simple, and analagous to signing the binary.
+
+```
+productsign --timestamp --sign "<Key ID>" <input.pkg> <output.pkg>
+```
+
+## Notarizing the Distribution Package
+
+Also analagous to notarizing the binary. We run
+
+```
+xcrun notarytool submit <package.pkg> --keychain-profile "AC_PASSWORD" --wait
+```
+
+and also check the submission logs.
+
+Note: you may need to enter your password a ridiculous number of times (like 4+)
+in order to successfully notarize this.
+
+## Stapling the Result
+
+Finally, we staple the notarization ticket to the package, ensuring that anyone
+who downloads the file can see that the installer was notarized:
+
+```
+xcrun stapler staple <package>
+```
+
+Note that `.dmg`, `.app`, and `.pkg` files can be stapled, but `.zip` and
+binary files cannot. Distributing the latter files alone will require that the
+installing computer can access the internet to verify notarization of the app.
+
+## Putting It All Together
+
+If you don't want to run these commands, a full workflow is available in
+`build_and_notarize` script. Like the other scripts, it assumes the presence
+and validity of the environmental variables described at the start of this piece.
+
+# Testing Notarization
+
+To test if a particular item is notarized, run one of the following commands:
+
+```
+codesign --test-requirement="=notarized" --verify --verbose <file>
+spctl -a -vvv -t install <file>
+```
+
+# External Links
+
+https://developer.apple.com/documentation/security/notarizing_macos_software_before_distribution
+
+https://developer.apple.com/documentation/security/notarizing_macos_software_before_distribution/customizing_the_notarization_workflow
+
+https://github.com/akeru-inc/xcnotary
+
+https://www.reddit.com/r/rust/comments/q8r90b/notarization_of_rust_binary_for_distribution_on/

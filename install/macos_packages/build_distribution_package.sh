@@ -30,7 +30,7 @@ fi
 # Generate a distribution file with the appropriate architecture plists
 if [[ "$arch" == "x86_64" || "$arch" == "x64" ]]; then
   archplist="x86_64.plist"
-elif [[ "$arch" == "arm64" ]]; then
+elif [[ "$arch" == "arm64" || "$arch" == "aarch64" ]]; then
   archplist="aarch64.plist"
 else
   error "Invalid architecture: $arch"
@@ -57,7 +57,7 @@ done < starship_raw.dist > starship.dist
 echo '</installer-gui-script>' >> starship.dist
 
 # Build the distribution package
-productbuild --distribution starship.dist --resources "$resources" --package-path "$component_package" starship.pkg
+productbuild --distribution starship.dist --resources "$resources" --package-path "$component_package" starship-unsigned.pkg
 
 # Clean up the distribution files
 rm -- *.dist
