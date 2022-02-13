@@ -20,6 +20,8 @@ error(){
     exit 1
 }
 
+script_dir="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+
 if [[ -z ${KEYCHAIN_ENTRY+x} ]]; then
   error "Environmental variable KEYCHAIN_ENTRY must be set."
 fi
@@ -66,10 +68,10 @@ rm starship
 unzip starship.zip
 
 # Create the component package
-bash ./build_component_package.sh "starship" "$starship_docs_dir/.vuepress/dist"
+bash "$script_dir/build_component_package.sh" "starship" "$starship_docs_dir/.vuepress/dist"
 
 # Create the distribution package
-bash ./build_distribution_package.sh "starship-component.pkg" "pkg_resources" "$arch"
+bash "$script_dir/build_distribution_package.sh" "starship-component.pkg" "pkg_resources" "$arch"
 
 # Codesign the package installer
 productsign --timestamp --sign "E525359D0B5AE97B7B6F5BB465FEC872C117D681" starship-unsigned.pkg starship.pkg

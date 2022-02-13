@@ -14,7 +14,7 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
-    - name: Install Apple signing certificates
+    - name: Set up certificates and keychains
       env:
         APP_CERTIFICATE_BASE64: ${{ secrets.APPLEDEV_APPSIGNKEY_BASE64 }}
         INSTALL_CERTIFICATE_BASE64: ${{ secrets.APPLEDEV_INSTALLERSIGNKEY_BASE64 }}
@@ -54,26 +54,21 @@ jobs:
     - name: Build starship
       run: cargo build
 
-    - name: Codesign application
+    - name: Build docs
       run: |
-        KEYCHAIN_PATH="$RUNNER_TEMP/$KEYCHAIN_FILENAME"
-        codesign --timestamp --sign "Developer ID Application" --keychain $KEYCHAIN_PATH --verbose -f -o runtime target/debug/starship
+        cd docs
+        npm install
+        npm run build
 
-    - name: Prepare Debug Binary for Codesigning
+    - name: Build/Sign/Notarize Flat Package
       run: |
-        cp target/debug/starship starship
-        zip starship.zip starship
-
-    - name: Notarize application
-      run: |
-        KEYCHAIN_PATH="$RUNNER_TEMP/$KEYCHAIN_FILENAME"
-        xcrun notarytool submit starship.zip --keychain $KEYCHAIN_PATH --keychain-profile "$KEYCHAIN_ENTRY" --wait 
+        bash install/macos_packages/build_and_notarize.sh target/debug/starship docs arm64
 
     - name: Upload Notarized Starship ZIP
       uses: actions/upload-artifact@v2
       with:
         name: notarized-starship-blob
-        path: starship.zip
+        path: starship.pkg
         retention-days: 1
 
     - name: Cleanup Secrets

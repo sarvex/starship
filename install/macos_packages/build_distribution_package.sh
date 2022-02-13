@@ -18,6 +18,9 @@ error(){
     exit 1
 }
 
+script_dir="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+
+
 if [[ "$OSTYPE" != 'darwin'* ]]; then
     error "This script only works on MacOS"
 fi
@@ -29,9 +32,9 @@ fi
 
 # Generate a distribution file with the appropriate architecture plists
 if [[ "$arch" == "x86_64" || "$arch" == "x64" ]]; then
-  archplist="x86_64.plist"
+  archplist="$script_dir/x86_64.plist"
 elif [[ "$arch" == "arm64" || "$arch" == "aarch64" ]]; then
-  archplist="aarch64.plist"
+  archplist="$script_dir/aarch64.plist"
 else
   error "Invalid architecture: $arch"
 fi
