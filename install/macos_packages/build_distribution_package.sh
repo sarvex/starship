@@ -25,8 +25,6 @@ if [[ "${2-undefined}" = "undefined" ]]; then
     exit 1
 fi
 
-
-
 # Generate a distribution file
 productbuild --synthesize --package starship-component.pkg starship_raw.dist
 
@@ -50,3 +48,6 @@ echo '</installer-gui-script>' >> starship.dist
 
 # Build the distribution package
 productbuild --distribution starship.dist --resources "$resources" --package-path "$component_package" starship.pkg
+
+# Clean up the distribution files
+rm -- *.dist
