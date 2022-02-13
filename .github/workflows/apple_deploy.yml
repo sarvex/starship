@@ -10,7 +10,7 @@ jobs:
     runs-on: macos-latest
     env:
       KEYCHAIN_FILENAME: app-signing.keychain-db
-      KEYCHAIN_ENTRY: APPLE_NOTARIZE_CREDENTIALS
+      KEYCHAIN_ENTRY: AC_PASSWORD
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
