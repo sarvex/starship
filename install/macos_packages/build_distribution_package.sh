@@ -2,13 +2,15 @@
 
 component_package="$1"
 resources="$2"
+arch="$3"
 
 usage(){
     echo "Builds a distribution package for macOS."
     echo "Assumes that the following items already exist:"
     echo "    - A starship component package"
     echo "    - Resources in a pkg_resources directory"
-    echo "Usage: $0 <path-to-component-package> <path-to-pkg-resources>"
+    echo "Usage: $0 <path-to-component-package> <path-to-pkg-resources> <arch>"
+    echo "    where arch is one of \"arm64\" or \"x86_64\""
 }
 
 error(){
@@ -20,13 +22,21 @@ if [[ "$OSTYPE" != 'darwin'* ]]; then
     error "This script only works on MacOS"
 fi
 
-if [[ "${2-undefined}" = "undefined" ]]; then
+if [[ "${3-undefined}" = "undefined" ]]; then
     usage
     exit 1
 fi
 
-# Generate a distribution file
-productbuild --synthesize --package starship-component.pkg starship_raw.dist
+# Generate a distribution file with the appropriate architecture plists
+if [[ "$arch" == "x86_64" || "$arch" == "x64" ]]; then
+  archplist="x86_64.plist"
+elif [[ "$arch" == "arm64" ]]; then
+  archplist="aarch64.plist"
+else
+  error "Invalid architecture: $arch"
+fi
+
+productbuild --synthesize --package starship-component.pkg --product "$archplist" starship_raw.dist
 
 # A terrible hacky way to insert nodes into XML without needing a full XML parser:
 # search for a line that matches our opening tag and insert our desired lines after it

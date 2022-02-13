@@ -181,16 +181,11 @@ so we don't need to notarize this pkg file.
 
 ## Creating a Distribution Package
 
-Since we want to customize the installer (just a little bit), we build our
-custom installer off of the distribution skeleton file present in this directory.
+To create a distribution, we do the following steps:
 
-It is possible that at some point in the future, the distribution file will no
-longer be usable
+- Use `productbuild` to generate a skeleton distribution file.
+- Insert custom welcome/license/conclusion and icon files into the installer.
+- Build the installer with `productbuild`.
 
-To figure out:
-
-- How to best generate/modify distribution file?
-- Do we go fat (lipo) or two native packages?
-  - If fat, how do we cross-compile and lipo?
-  - If thin, how do we set the appropriate flags in the distribution file?
-- What documentation needs to be set up?
+I have elected not to make a fat binary due to concerns over startup cost, so
+there are two .plist files that can be used to specify the architecture required.
