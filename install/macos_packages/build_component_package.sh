@@ -88,5 +88,6 @@ cleanup_server
 trap - INT
 
 # Build the component package
+ls -al
 version="$("exec $starship_program_file -V" | grep -Eo '[0-9]+\.[0-9]+\.[0-9]+')"
 pkgbuild --identifier com.starshipprompt.starship --version "$version" --root $pkgdir starship-component.pkg
