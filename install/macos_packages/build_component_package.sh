@@ -14,7 +14,7 @@ usage(){
     echo "    - A starship binary which has already been notarized"
     echo "    - Documentation created by \`npm run build\`, usually in a dist"
     echo "      directory at <repo>/docs/.vuepress/dist"
-    echo "Usage: $0 <path-to-starship-binary> <path-to-dist-directoryåå>"
+    echo "Usage: $0 <path-to-starship-binary> <path-to-dist-directory>"
 }
 
 error(){
@@ -32,15 +32,15 @@ cleanup_server(){
     fi
 }
 
-
 if [[ "$OSTYPE" != 'darwin'* ]]; then
     error "This script only works on MacOS"
 fi
 
-script_dir="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
-repo_dir="$(dirname "$script_dir")"
+if [[ "${2-undefined}" = "undefined" ]]; then
+    usage
+    exit 1
+fi
 
-starship_src_root="${1:-$repo_dir}"
 starship_program_file="$1"
 starship_documentation_dir="$2"
 
