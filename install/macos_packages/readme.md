@@ -30,8 +30,10 @@ described below, built docs, and built release binary), you can generate the
 package file with the following command:
 
 ```
-./install/macos_packages/build_and_notarize.sh target/release/starship
+./install/macos_packages/build_and_notarize.sh target/release/starship docs x64
 ```
+
+or `arm64` if building on Apple silicon.
 
 ## Setting Up Credentials
 
