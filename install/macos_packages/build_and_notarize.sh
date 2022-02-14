@@ -10,14 +10,15 @@ set -euo pipefail
 usage(){
     echo "Builds, signs, and notarizes starship."
     echo "Read readme.md in the script directory to see the assumptions the script makes."
-    echo "Usage: $0 <path-to-starship-binary> <path-to-docs-directory> <arch>"
+    echo "Usage: $0 <path-to-starship-binary> <path-to-docs-directory> <arch> [pkgname]"
     echo "  Example: $0 target/release/starship docs/ x64"
-    echo "  Example: $0 target/debug/starship docs/ arm64"
+    echo "  Example: $0 target/debug/starship docs/ arm64 starship-1.2.1-arm64.pkg"
+    echo ""
+    echo "If no pkgname is provided, the package will be named starship-<version>-<arch>.pkg"
 }
 
 script_dir="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 source "$script_dir/common.sh"
-
 
 if [[ -z ${KEYCHAIN_ENTRY+x} ]]; then
   error "Environmental variable KEYCHAIN_ENTRY must be set."
@@ -44,6 +45,7 @@ fi
 starship_binary="$1"
 starship_docs_dir="$2"
 arch="$3"
+pkgname="${4:-}"
 
 if [[ ! -d "$starship_docs_dir/.vuepress/dist" ]]; then
   error "Documentation does not appear to have been built!"
@@ -78,3 +80,11 @@ xcrun notarytool submit starship.pkg --keychain-profile "$KEYCHAIN_ENTRY" --wait
 
 # Staple things
 xcrun stapler staple starship.pkg
+
+# Rename to expected name
+if [ "$pkgname" = "" ]; then
+  version="$(starship_version "$starship_binary")"
+  pkgname="starship-$version-$arch.pkg"
+fi
+
+mv starship.pkg "$pkgname"
