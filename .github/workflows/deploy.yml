@@ -110,7 +110,7 @@ jobs:
           path: ${{ matrix.name }}
 
   # Notarize starship binaries for MacOS and build notarized pkg installers
-  notarize-and-build-pkgs:
+  notarize_and_pkgbuild:
   runs-on: macos-latest
   needs: github_build
   strategy:
