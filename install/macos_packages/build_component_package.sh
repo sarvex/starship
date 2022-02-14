@@ -71,7 +71,7 @@ chmod u+x "$server_prog_name"
 trap cleanup_server INT
 "./$server_prog_name" --ip 127.0.0.1 --index "$starship_documentation_dir" &
 server_pid="$!"
-# Give the server a chance to come online before trying to curl off of it
+# Give the server a chance to come online before trying to mirror it
 echo "Sleeping to give the server a chance to come online..."
 sleep 3
 

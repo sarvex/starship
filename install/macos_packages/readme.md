@@ -10,7 +10,6 @@ The basic procedure is as follows:
 - Sign binary with Developer Application ID
 - Upload binary to notarization service to get notarized
 - Use code + docs to generate a component package
-- Sign component package with Developer Installer ID
 - Use component package to generate a distribution package
 - Sign distribution package with Developer Installer ID
 - Upload distribution package to notarization service to get notarized
@@ -37,8 +36,9 @@ non-self-signed keys and to be able to notarize files.
 
 ### Signing Keys
 
-To generate the signing keys, I went through the [Xcode GUI](https://help.apple.com/xcode/mac/current/#/dev154b28f09), though there are several other methods to do this. You will need
-at least one Application signing key and one Installer signing key.
+To generate the signing keys, I went through the [XcodeGUI](https://help.apple.com/xcode/mac/current/#/dev154b28f09), though there are
+several other methods to do this. You will need at least one Application signing
+key and one Installer signing key.
 
 To check what signing keys are available, you can use the following command:
 
