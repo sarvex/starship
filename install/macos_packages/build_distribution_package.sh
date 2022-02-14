@@ -54,6 +54,12 @@ done < starship_raw.dist > starship.dist
 # The above script does not correctly take care of the last line. Apply fixup.
 echo '</installer-gui-script>' >> starship.dist
 
+echo "Creating distribution package with following distribution file:"
+cat starship.dist
+
+echo "Resource directory is $resources"
+echo "Component package is $component_package"
+
 # Build the distribution package
 productbuild --distribution starship.dist --resources "$resources" --package-path "$component_package" starship-unsigned.pkg
 

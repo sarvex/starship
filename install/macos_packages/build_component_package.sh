@@ -77,7 +77,7 @@ sleep 3
 # on MacOS by default, but lucky for us, it does exist on GHActions runners.
 # Wget may return nonzero exit codes even if things were mostly fine (e.g. 404 for
 # some links on translated pages) so we simply ignore if it has a failure
-wget --mirror --convert-links --adjust-extension --page-requisites --no-parent 127.0.0.1:8000 || true
+wget --mirror --convert-links --adjust-extension --page-requisites --no-parent 127.0.0.1:8000 &> wget.log || true
 mkdir -p "$pkgdir/usr/local/share/doc/"
 mv 127.0.0.1:8000 "$pkgdir/usr/local/share/doc/starship"
 
