@@ -4,7 +4,7 @@ set -euo pipefail
 
 # Example envrionmental variables that need to be set.
 # KEYCHAIN_ENTRY=AC_PASSWORD   # Or whatever you picked for <AUTH_ITEM_NAME> above
-# RUNNER_TEMP=~/Library/Keychains
+# RUNNER_TEMP=~/Library/Keychains/
 # KEYCHAIN_FILENAME=login.keychain
 
 usage(){
@@ -56,7 +56,9 @@ echo "Signing binary"
 codesign --timestamp --keychain "$keychain_path" --sign "E03290CABE09E9E42341C8FC82608E91241FAD4A" --verbose -f -o runtime $starship_binary
 
 # Make ZIP file to notarize binary
-cp "$starship_binary" starship
+if [ "$starship_binary" != "starship" ]; then
+  cp "$starship_binary" starship
+fi
 zip starship.zip starship
 
 echo "Submitting binary for notarization"
