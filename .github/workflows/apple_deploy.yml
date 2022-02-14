@@ -111,20 +111,13 @@ jobs:
         name: ${{ matrix.name }}
         path: artifacts
 
-    - name: What's here?
-      run: |
-        ls -al
-        ls -al artifacts
-        file artifacts/${{ matrix.name }} || true
-
-    - name: Unpack Binaries
+    - name: Notarize | Unpack Binaries
       run: tar xf artifacts/${{ matrix.name }}
 
     - name: Notarize | Build, Sign, and Notarize Pkg
-      run: |
-        bash install/macos_packages/build_and_notarize.sh starship docs ${{ matrix.arch }} ${{  matrix.pkgname }}
+      run: bash install/macos_packages/build_and_notarize.sh starship docs ${{ matrix.arch }} ${{ matrix.pkgname }}
 
-    - name: Notarize | Upload Artifacts
+    - name: Notarize | Upload Notarized Flat Installer
       uses: actions/upload-artifact@v2
       with:
         name: ${{ matrix.pkgname }}
