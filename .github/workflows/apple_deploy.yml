@@ -129,7 +129,7 @@ jobs:
       with:
         name: ${{ matrix.pkgname }}
         path: ${{ matrix.pkgname }}
-        retention-days: 1
+        retention-days: 14
 
     - name: Cleanup Secrets
       if: ${{ always() }}
