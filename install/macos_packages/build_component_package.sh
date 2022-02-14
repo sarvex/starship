@@ -17,16 +17,14 @@ usage(){
     echo "Usage: $0 <path-to-starship-binary> <path-to-dist-directory>"
 }
 
-error(){
-    echo "[ERROR]: $1"
-    exit 1
-}
+script_dir="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+source "$script_dir/common.sh"
 
 cleanup_server(){
     if [[ -n "${server_pid-}" ]]; then
         echo "Killing HTTP server ($server_pid) to clean up."
-        rm "x86_64-apple-darwin-simple-http-server"
         kill "$server_pid"
+        rm "x86_64-apple-darwin-simple-http-server"
     else
         echo "No server found, exiting normally."
     fi
@@ -88,7 +86,5 @@ cleanup_server
 trap - INT
 
 # Build the component package
-echo "What's in this directory?"
-ls -al
-version="$("exec $starship_program_file -V" | grep -Eo '[0-9]+\.[0-9]+\.[0-9]+')"
+version="$(starship_version "$starship_program_file")"
 pkgbuild --identifier com.starshipprompt.starship --version "$version" --root $pkgdir starship-component.pkg

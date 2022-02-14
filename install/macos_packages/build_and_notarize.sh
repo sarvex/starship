@@ -15,12 +15,9 @@ usage(){
     echo "  Example: $0 target/debug/starship docs/ arm64"
 }
 
-error(){
-    echo "[ERROR]: $1"
-    exit 1
-}
-
 script_dir="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+source "$script_dir/common.sh"
+
 
 if [[ -z ${KEYCHAIN_ENTRY+x} ]]; then
   error "Environmental variable KEYCHAIN_ENTRY must be set."

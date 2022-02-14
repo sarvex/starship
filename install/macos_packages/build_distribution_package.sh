@@ -13,13 +13,8 @@ usage(){
     echo "    where arch is one of \"arm64\" or \"x86_64\""
 }
 
-error(){
-    echo "[ERROR]: $1"
-    exit 1
-}
-
 script_dir="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
-
+source "$script_dir/common.sh"
 
 if [[ "$OSTYPE" != 'darwin'* ]]; then
     error "This script only works on MacOS"
