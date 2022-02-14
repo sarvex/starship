@@ -52,6 +52,7 @@ jobs:
 
   sign-and-notarize:
     runs-on: macos-latest
+    needs: build-dummy
     strategy:
       fail-fast: false
       matrix:
