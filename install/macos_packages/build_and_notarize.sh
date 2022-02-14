@@ -72,7 +72,8 @@ unzip starship.zip
 bash "$script_dir/build_component_package.sh" "starship" "$starship_docs_dir/.vuepress/dist"
 
 # Create the distribution package
-bash "$script_dir/build_distribution_package.sh" "starship-component.pkg" "pkg_resources" "$arch"
+resources_path="$script_dir/pkg_resources"
+bash "$script_dir/build_distribution_package.sh" "starship-component.pkg" "$resources_path" "$arch"
 
 # Codesign the package installer
 productsign --timestamp --sign "E525359D0B5AE97B7B6F5BB465FEC872C117D681" starship-unsigned.pkg starship.pkg

@@ -23,6 +23,16 @@ scripts.
 
 You will need XCode installed.
 
+## Short-form Command Line Invocation
+
+If you have the prerequisites set up (including the environment variables as
+described below, built docs, and built release binary), you can generate the
+package file with the following command:
+
+```
+./install/macos_packages/build_and_notarize.sh target/release/starship
+```
+
 ## Setting Up Credentials
 
 ### Apple Developer Account
