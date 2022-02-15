@@ -40,15 +40,15 @@ productbuild --synthesize --package starship-component.pkg --product "$archplist
 # search for a line that matches our opening tag and insert our desired lines after it
 # Solution taken from https://www.theunixschool.com/2012/06/insert-line-before-or-after-pattern.html
 
-while read line
+while read -r line
 do
-        echo "$line"
-        echo "$line" | grep -qF '<installer-gui-script '
-        [ $? -eq 0 ] \
-          && echo '<welcome file="welcome.html" mime-type="text-html" />'\
-          && echo '<license file="license.html" mime-type="text-html" />'\
-          && echo '<conclusion file="conclusion.html" mime-type="text-html" />'\
-          && echo '<background file="icon.png" scaling="proportional" alignment="bottomleft"/>'
+  echo "$line"
+  if echo "$line" | grep -qF '<installer-gui-script '; then
+    echo '<welcome file="welcome.html" mime-type="text-html" />'
+    echo '<license file="license.html" mime-type="text-html" />'
+    echo '<conclusion file="conclusion.html" mime-type="text-html" />'
+    echo '<background file="icon.png" scaling="proportional" alignment="bottomleft"/>'
+  fi
 done < starship_raw.dist > starship.dist
 
 # The above script does not correctly take care of the last line. Apply fixup.

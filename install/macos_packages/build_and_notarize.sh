@@ -53,7 +53,7 @@ fi
 
 
 echo "Signing binary"
-codesign --timestamp --keychain "$keychain_path" --sign "E03290CABE09E9E42341C8FC82608E91241FAD4A" --verbose -f -o runtime $starship_binary
+codesign --timestamp --keychain "$keychain_path" --sign "E03290CABE09E9E42341C8FC82608E91241FAD4A" --verbose -f -o runtime "$starship_binary"
 
 # Make ZIP file to notarize binary
 if [ "$starship_binary" != "starship" ]; then
